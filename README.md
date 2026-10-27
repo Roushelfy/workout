@@ -1,10 +1,10 @@
 # 睡前哑铃跟练
 
-每晚 23:30 的居家哑铃训练跟练网页：按星期自动切到当天的训练，带倒计时、组间休息和每组次数记录（记录保存在当前设备的浏览器里）。每个动作都有 B 站真人视频和示意动画。
+每晚 23:30 的居家训练跟练网页：按星期自动切到当天的训练，带倒计时、组间休息和每组次数记录（记录保存在当前设备的浏览器里）。每个动作都有 B 站真人视频和示意动画。
 
 网址：https://roushelfy.github.io/workout/
 
-器材：瑜伽垫 + 两个 15 磅哑铃。
+器材：瑜伽垫、两个 15 磅哑铃、门框单杠。
 
 ## 视频来源
 
@@ -35,6 +35,7 @@
 | 站姿哑铃推举 | [FE健身干货百科书](https://space.bilibili.com/34782728) | [最适合新手的站姿哑铃推举，你该注意这些要点。](https://www.bilibili.com/video/BV1q7411v7My/) | 1:00–5:07 |
 | 慢速俯卧撑 | [MuscleUp街头健身](https://space.bilibili.com/260509354) | [【街健动作库】深层肌肉稳定训练——慢速俯卧撑教学 早晚都要练！](https://www.bilibili.com/video/BV1Yv41177PA/) | 0:12–1:46 |
 | 侧平举 | [Jack吖杰](https://space.bilibili.com/604330433) | [哑铃侧平举动作细节解析，完美解决肩疼碗疼，规避斜方代偿](https://www.bilibili.com/video/BV1iR4y1Y7Ku/) | 0:13–1:52 |
+| 引体向上 | — | [【引体向上】从0到1解锁 (适合一个都做不了的，经验干货分享)](https://www.bilibili.com/video/BV1Yg4y1z7hG/) | 全片 |
 | 锤式弯举 | [蔡梓强](https://space.bilibili.com/23172987) | [【ZQ】如何正确地做锤式弯举？｜站姿锤式弯举讲解教学｜动作示范｜常见错误｜](https://www.bilibili.com/video/BV1iJ411U72E/) | 0:17–3:43 |
 | 仰卧哑铃臂屈伸 | [凯圣王](https://space.bilibili.com/2100737396) | [对握哑铃仰卧臂屈伸详解](https://www.bilibili.com/video/BV1Cz421i79n/) | 0:39–6:10 |
 | 俯卧 Y-T-W | [戴夫健身](https://space.bilibili.com/294666436) | [「FitnessFAQs」“YTWL”加强肩胛+提升肩袖+改善圆肩驼背](https://www.bilibili.com/video/BV16W4y1e7vj/) | 1:40–5:23 |

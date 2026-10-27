@@ -120,6 +120,7 @@ h1{font-family:var(--f-display);font-weight:700;font-size:46px;line-height:1.02;
 .fig .matv{fill:var(--surface-2)}
 .stage .fig .matv{fill:var(--surface)}
 .fig .wall{stroke:var(--muted);stroke-opacity:.6;stroke-width:4}
+.fig .barp{stroke:var(--muted);stroke-width:5;stroke-linecap:round}
 .fig path.body{fill:none;stroke-linecap:round}
 .fig .strap{stroke:var(--lamp);stroke-width:2.5}
 .fig .trace{fill:none;stroke:var(--lamp);stroke-width:1.5;stroke-dasharray:2 5;opacity:.55}
@@ -192,7 +193,7 @@ const FIG=(function(){
     return [[r[0]+ux*a-uy*h*s,r[1]+uy*a+ux*h*s],[r[0]+ux*d,r[1]+uy*d]];
   }
   function limb(spec,root,l1,l2,t,P){
-    if(spec.a){const m=add(root,dn(spec.a[0]),l1);return [m,add(m,dn(spec.a[1]),l2),spec.a[1]];}
+    if(spec.a){const m=add(root,dn(spec.a[0]),l1);return [m,add(m,dn(spec.a[1]),l2*(spec.k2==null?1:spec.k2)),spec.a[1]];}
     if(spec.r){const u=spec.r[0]-t,f=spec.r[1]-t,m=add(root,dn(u),l1);return [m,add(m,dn(f),l2),f];}
     let tg=spec.k;
     if(spec.sk) tg=[P.sh[0]+spec.sk[0],P.sh[1]+spec.sk[1]];
@@ -270,8 +271,9 @@ const FIG=(function(){
       if(pr.wall!=null){grow(pr.wall-3,y0);grow(pr.wall+3,G);}
       if(pr.mat){grow(pr.mat[0],G-2);grow(pr.mat[1],G+2);}
       if(pr.matV){const m=pr.matV;grow(m[0],m[1]);grow(m[0]+m[2],m[1]+m[3]);}
+      if(pr.bar){grow(pr.bar[0],pr.bar[2]-4);grow(pr.bar[1],pr.bar[2]+4);}
     });
-    if(prog.v!=="top") grow(x0,G+3);
+    if(prog.v!=="top"&&!prog.air) grow(x0,G+3);
     const pad=14;x0-=pad;y0-=pad;x1+=pad;y1+=pad;
     let w=x1-x0,h=y1-y0;
     if(w<230){x0-=(230-w)/2;w=230;}
@@ -281,18 +283,19 @@ const FIG=(function(){
   }
   function propsList(prog){
     const out=[],b=frame(prog);
-    if(prog.v!=="top") out.push({k:"l",x1:b.x,y1:G+3,x2:b.x+b.w,y2:G+3,c:"ground"});
+    if(prog.v!=="top"&&!prog.air) out.push({k:"l",x1:b.x,y1:G+3,x2:b.x+b.w,y2:G+3,c:"ground"});
     (prog.props||[]).forEach(pr=>{
       if(pr.bench||pr.step){const s=pr.bench||pr.step;out.push({k:"r",x:s[0],y:G+3-s[2],w:s[1],h:s[2],c:"prop"});}
       if(pr.wall!=null) out.push({k:"l",x1:pr.wall,y1:b.y+6,x2:pr.wall,y2:G+3,c:"wall"});
       if(pr.mat) out.push({k:"r",x:pr.mat[0],y:G-1,w:pr.mat[1]-pr.mat[0],h:4,c:"mat"});
       if(pr.matV) out.push({k:"r",x:pr.matV[0],y:pr.matV[1],w:pr.matV[2],h:pr.matV[3],c:"matv"});
+      if(pr.bar) out.push({k:"l",x1:pr.bar[0],y1:pr.bar[2],x2:pr.bar[1],y2:pr.bar[2],c:"barp"});
     });
     return out;
   }
 
   /* ---------- 姿态库 ---------- */
-  const A=(u,f)=>({a:[u,f]}),RL=(u,f)=>({r:[u,f]}),K=(x,y,s)=>({k:[x,y],s:s==null?1:s});
+  const A=(u,f,k)=>({a:[u,f],k2:k==null?1:k}),RL=(u,f)=>({r:[u,f]}),K=(x,y,s)=>({k:[x,y],s:s==null?1:s});
   const SK=(x,y,s)=>({sk:[x,y],s:s==null?1:s}),HK=(x,y,s)=>({hk:[x,y],s:s==null?1:s});
   const LA=(a,b,f)=>({a:[a,b],f}),LK=(x,y,f)=>({k:[x,y],s:-1,f:f==null?90:f});
   const X=(base,over)=>Object.assign({},base,over);
@@ -400,8 +403,8 @@ const FIG=(function(){
   })();
   // 正面视角：侧平举、反向飞鸟
   (()=>{const fl={lN:LA(-4,-4,-70),lF:LA(4,4,70)};
-    const lb=X(fl,{hip:[150,99],t:0,hd:0,aN:A(-8,-6),aF:A(8,6)}),lt=X(lb,{aN:A(-84,-80),aF:A(84,80)});
-    P.lateral={v:"front",note:"正面看",db:"NF",trace:"aF",keys:[{p:lb,d:2,l:"慢慢放下"},{p:lb,d:0.5,l:"手臂在身侧，手肘微屈"},{p:lt,d:1.2,l:"抬到与肩同高"},{p:lt,d:0.3,l:"不耸肩"}]};
+    const lb=X(fl,{hip:[150,99],t:0,hd:0,aN:A(-6,-30,0.35),aF:A(6,30,0.35)}),lt=X(lb,{aN:A(-86,-60,0.35),aF:A(86,60,0.35)});
+    P.lateral={v:"front",note:"正面看 · 屈肘，小臂朝前",db:"NF",trace:"aF",keys:[{p:lb,d:2,l:"慢慢放下"},{p:lb,d:0.5,l:"屈肘约 90°，小臂朝前"},{p:lt,d:1.2,l:"手肘带着抬到与肩同高"},{p:lt,d:0.3,l:"不耸肩"}]};
     const rb=X(fl,{hip:[150,99],t:0,ts:0.62,hy:0.2,hd:0,aN:A(-5,-4),aF:A(5,4)}),rt=X(rb,{aN:A(-84,-4),aF:A(84,4)});
     rb.aN=A(-22,24);rb.aF=A(22,-24);
     P.revfly={v:"front",note:"正面看 · 上身前倾约 45° · 屈肘",db:"",trace:"aF",keys:[{p:rb,d:2,l:"慢慢放回"},{p:rb,d:0.5,l:"屈肘约 90°，空手或拿矿泉水"},{p:rt,d:1.2,l:"手肘带着手臂向两侧打开"},{p:rt,d:0.5,l:"后肩收紧，不耸肩"}]};
@@ -420,6 +423,13 @@ const FIG=(function(){
   (()=>{const bb={hip:[122,142],t:75.5,hd:0,aN:A(0,0),aF:A(0,0),lN:LA(0,-90,-90),lF:LA(0,-90,-90)};
     const b1=X(bb,{aN:A(92,92),lF:LA(-88,-88,0)}),b2=X(bb,{aF:A(92,92),lN:LA(-88,-88,0)});
     P.birddog={v:"side",props:[{mat:[30,250]}],keys:[{p:bb,d:1.2,l:"收回"},{p:bb,d:0.5,l:"四点跪姿，背平"},{p:b1,d:1.5,l:"对侧手脚伸直"},{p:b1,d:2,l:"停 2 秒，骨盆不晃"},{p:bb,d:1.2,l:"收回"},{p:bb,d:0.3,l:"四点跪姿，背平"},{p:b2,d:1.5,l:"换另一侧"},{p:b2,d:2,l:"停 2 秒，骨盆不晃"}]};
+  })();
+
+  // 引体向上（侧面看，挂在单杠上）
+  (()=>{const bar=[118,200,20],hand=[158,20];
+    const lo={hip:[148,131],t:0,hd:0,aN:K(hand[0],hand[1],1),aF:K(hand[0]+2,hand[1],1),lN:LA(14,-36),lF:LA(10,-44)};
+    const hi=X(lo,{hip:[146,80],t:-6,hd:-8});
+    P.pullup={v:"side",air:true,props:[{bar}],trace:"hip",keys:[{p:lo,d:3,l:"2–3 秒慢慢放下"},{p:lo,d:0.6,l:"挂直，肩膀先往下沉"},{p:hi,d:1.2,l:"手肘往下拉，下巴过杠"},{p:hi,d:0.4,l:"顶端稍停"}]};
   })();
 
   /* ---------- 热身 ---------- */
@@ -483,7 +493,7 @@ const FIG=(function(){
   function toSVG(prog,time,colors){
     const C=colors||{ink:"#eee8e0",muted:"#a59eb0",lamp:"#f2a65a",line:"#353041",s2:"#2a2634",bg:"#1f1c27"};
     const b=frame(prog),g=prims(prog,time);
-    const st={ground:`stroke="${C.line}" stroke-width="2"`,wall:`stroke="${C.line}" stroke-width="4"`,prop:`fill="${C.s2}" stroke="${C.line}"`,mat:`fill="${C.line}"`,matv:`fill="${C.s2}"`};
+    const st={barp:`stroke="${C.muted}" stroke-width="5" stroke-linecap="round"`,ground:`stroke="${C.line}" stroke-width="2"`,wall:`stroke="${C.line}" stroke-width="4"`,prop:`fill="${C.s2}" stroke="${C.line}"`,mat:`fill="${C.line}"`,matv:`fill="${C.s2}"`};
     let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${b.x} ${b.y} ${b.w} ${b.h}" width="${b.w*1.6}" height="${b.h*1.6}"><rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="${C.bg}"/>`;
     propsList(prog).forEach(p=>{s+=p.k==="l"?`<line x1="${p.x1}" y1="${p.y1}" x2="${p.x2}" y2="${p.y2}" ${st[p.c]}/>`:`<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="3" ${st[p.c]}/>`;});
     if(b.trace.length) s+=`<polyline points="${b.trace.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ")}" fill="none" stroke="${C.lamp}" stroke-width="1.5" stroke-dasharray="2 5" opacity=".55"/>`;
@@ -615,11 +625,18 @@ const DEMO = {
     errs:["下放时塌腰","停顿时耸肩","数得太快"],
     yt:"slow eccentric push up tempo",bl:"离心俯卧撑 慢速"},
   lateral:{mus:"三角肌中束",tempo:"抬起 1 秒 · 放下 2 秒",steps:[
-    "站直，双手拿哑铃垂在身体两侧，手肘微屈。",
-    "呼气，手臂向两侧抬起，抬到与肩同高就停，手腕不高过手肘。",
+    "站直，双手拿哑铃放在身体两侧，手肘弯曲约 90°，小臂朝前。",
+    "呼气，用手肘带着往两侧抬，抬到大臂与肩同高就停，手腕不要高过手肘。",
     "吸气，2 秒慢慢放下，放到身侧前不要完全放松。"],
-    errs:["耸肩，把哑铃甩上去","抬得高过肩膀","身体前后晃动借力"],
-    yt:"dumbbell lateral raise proper form",bl:"哑铃侧平举 标准动作"},
+    errs:["耸肩，把哑铃甩上去","抬得高过肩膀","身体前后晃动借力","重量太重：伸直手臂用 15 磅对新手太重，容易伤肩"],
+    yt:"bent arm lateral raise form",bl:"屈臂侧平举"},
+  pullup:{mus:"背阔肌、肱二头肌、中下斜方肌",tempo:"拉起 1 秒 · 放下 2–3 秒",steps:[
+    "双手略宽于肩，掌心朝前握住单杠，身体挂直，双腿可以屈膝交叉。",
+    "先把肩膀往下沉、肩胛往后收，手臂还不弯，身体会微微上升一点。",
+    "呼气，用手肘往下、往身体两侧拉，拉到下巴过杠。",
+    "吸气，用 2–3 秒慢慢放下到手臂伸直，再开始下一个。"],
+    errs:["甩腿、扭身体借力：门框单杠受不了左右晃","只拉半程：每次都要放到手臂伸直","耸肩：肩膀先往下沉再拉","下放太快：放下这一段同样在长肌肉"],
+    yt:"pull up progression negatives beginner",bl:"引体向上 新手 负向引体"},
   hammer:{mus:"肱二头肌、肱桡肌（前臂）",tempo:"举起 1 秒 · 放下 2–3 秒",steps:[
     "站直，双手拿哑铃垂在身体两侧，掌心相对。",
     "大臂贴住身体，呼气，弯肘把哑铃举到肩前，掌心始终相对。",
@@ -768,7 +785,8 @@ const VIDEO = {
   row2:["BV1iV4y157U1",24,67,"李霄雪","588197255","背部训练——哑铃俯身划船",0,""],
   ohp:["BV1q7411v7My",60,307,"FE健身干货百科书","34782728","最适合新手的站姿哑铃推举，你该注意这些要点。",0,""],
   slowpush:["BV1Yv41177PA",12,106,"MuscleUp街头健身","260509354","【街健动作库】深层肌肉稳定训练——慢速俯卧撑教学 早晚都要练！",0,""],
-  lateral:["BV1iR4y1Y7Ku",13,112,"Jack吖杰","604330433","哑铃侧平举动作细节解析，完美解决肩疼碗疼，规避斜方代偿",0,""],
+  lateral:["BV1iR4y1Y7Ku",13,112,"Jack吖杰","604330433","哑铃侧平举动作细节解析，完美解决肩疼碗疼，规避斜方代偿",0,"视频示范的是手臂伸直的做法；你用 15 磅先屈肘做，起始姿势、抬起高度和不耸肩的要点相同。"],
+  pullup:["BV1Yg4y1z7hG",0,0,"","","【引体向上】从0到1解锁 (适合一个都做不了的，经验干货分享)",0,"适合一个都拉不上的新手，讲了从悬挂、负向引体开始的练法。"],
   hammer:["BV1iJ411U72E",17,223,"蔡梓强","23172987","【ZQ】如何正确地做锤式弯举？｜站姿锤式弯举讲解教学｜动作示范｜常见错误｜",0,""],
   skull:["BV1Cz421i79n",39,370,"凯圣王","2100737396","对握哑铃仰卧臂屈伸详解",1,"视频示范的是斜凳加对握哑铃的版本，你躺在地垫上做；肘部位置、手臂角度和动作轨迹的要点相同。"],
   ytw:["BV16W4y1e7vj",100,323,"戴夫健身","294666436","「FitnessFAQs」“YTWL”加强肩胛+提升肩袖+改善圆肩驼背",0,""],
@@ -791,9 +809,9 @@ function videoHTML(key){
   const page="https://www.bilibili.com/video/"+bv+"/"+(t0?"?t="+t0:"");
   let h='<section class="vid" aria-label="真人视频示范">';
   h+='<div class="vid-frame'+(tall?" tall":"")+'"><iframe src="'+esc(src)+'" title="'+esc(title)+'" loading="lazy" scrolling="no" frameborder="0" allow="fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
-  h+='<p class="vid-cap">建议看 <b>'+mmss(t0)+'–'+mmss(t1)+'</b> · <a href="'+esc(page)+'" target="_blank" rel="noopener">在 B 站打开 ↗</a></p>';
+  h+='<p class="vid-cap">'+(t1?'建议看 <b>'+mmss(t0)+'–'+mmss(t1)+'</b> · ':'')+'<a href="'+esc(page)+'" target="_blank" rel="noopener">在 B 站打开 ↗</a></p>';
   if(note) h+='<p class="vid-note">'+esc(note)+'</p>';
-  h+='<p class="vid-src">视频来自 B 站 UP 主 <a href="https://space.bilibili.com/'+esc(mid)+'" target="_blank" rel="noopener">'+esc(up)+'</a>《'+esc(title)+'》，版权归原作者所有，通过 B 站播放器播放。</p>';
+  h+='<p class="vid-src">视频来自 B 站'+(up?' UP 主 <a href="https://space.bilibili.com/'+esc(mid)+'" target="_blank" rel="noopener">'+esc(up)+'</a>':'')+'《'+esc(title)+'》，版权归原作者所有，通过 B 站播放器播放。</p>';
   return h+'</section>';
 }
 
@@ -809,7 +827,8 @@ const EX = {
   row2:{name:"俯身双手划船",lo:12,hi:15,cue:"屈膝俯身约 45°，背平。双手同时把哑铃拉向腰侧，顶部夹紧肩胛，3 秒放下。",harder:"顶部停 2 秒"},
   ohp:{name:"站姿哑铃推举",lo:8,hi:12,cue:"双脚与肩同宽，收紧腹部和臀部。哑铃从肩上推到头顶，身体不要后仰。",harder:"3 秒下放，或单臂交替推"},
   slowpush:{name:"慢速俯卧撑",lo:6,hi:12,rx:"力竭前 1–2 个",cue:"3 秒下放，胸口离地一拳时停 1 秒，再推起。",easier:"跪姿做"},
-  lateral:{name:"侧平举",lo:10,hi:15,cue:"手肘微屈，抬到与肩同高就停，慢慢放下，别借腰的力。",easier:"屈肘 90° 做，会轻很多"},
+  lateral:{name:"侧平举（屈肘）",lo:12,hi:20,cue:"屈肘约 90°，小臂朝前，用手肘带着往两侧抬到与肩同高，慢慢放下。别耸肩、别借腰的力。15 磅伸直手臂做对新手太重，容易伤肩。",easier:"空手做，或各拿一瓶矿泉水",harder:"手臂伸直做（力臂更长）"},
+  pullup:{name:"引体向上",lo:3,hi:10,rx:"力竭前 1–2 个",cue:"双手略宽于肩、掌心朝前握杠。先把肩膀往下沉，再用手肘往下拉，拉到下巴过杠，然后 2–3 秒慢慢放下。不要甩腿借力。单杠还没到的话，这几组换成单臂哑铃划船。",easier:"负向引体：踩椅子到顶端，用 3–5 秒慢慢放下，每组 3–5 个；还做不了就先悬挂 20–30 秒",harder:"顶端停 1 秒，或用 4 秒放下"},
   hammer:{name:"锤式弯举",lo:12,hi:15,cue:"掌心相对握哑铃，大臂贴住身体，只动小臂。",harder:"3 秒下放"},
   skull:{name:"仰卧哑铃臂屈伸",lo:12,hi:15,cue:"仰卧，双手持哑铃伸直在胸口上方。大臂不动，只弯肘把哑铃放到耳朵两侧，再伸直。"},
   ytw:{name:"俯卧 Y-T-W",lo:8,hi:10,rx:"每个字母 8 次",cue:"趴在垫子上，不拿哑铃。拇指朝上，手臂依次摆成 Y、T、W 抬离地面，每次停 1 秒。护肩，对打网球也有好处。"},
@@ -851,10 +870,10 @@ const COOL_LONG = [S.hipflex(45),S.ham(45),S.fig4(45),S.chest(45),S.child(60),BR
 
 /* ---------- 训练 ---------- */
 const W = {
-  upA:{title:"上肢 A",sub:"推为主",warm:WARM,cool:COOL_UP,groups:[
-    {tag:"A",items:["pushup","row1"],sets:3,restIn:30,restOut:60},
-    {tag:"B",items:["floorpress","revfly"],sets:3,restIn:30,restOut:60},
-    {tag:"C",items:["curl","diamond"],sets:2,restIn:30,restOut:60}
+  upA:{title:"上肢 A",sub:"引体 + 胸",warm:WARM,cool:COOL_UP,groups:[
+    {tag:"A",items:["pullup","pushup"],sets:3,restIn:45,restOut:75},
+    {tag:"B",items:["floorpress","row1"],sets:3,restIn:30,restOut:60},
+    {tag:"C",items:["lateral","diamond"],sets:3,restIn:30,restOut:60}
   ]},
   lowA:{title:"下肢 A",sub:"深蹲和分腿蹲",warm:WARM,cool:COOL_LOW,groups:[
     {tag:"A",items:["squat"],sets:3,rest:60},
@@ -869,11 +888,11 @@ const W = {
     {tag:"C",items:["sideplank"],sets:2,rest:30},
     {tag:"D",items:["birddog"],sets:2,rest:30}
   ]},
-  upB:{title:"上肢 B",sub:"拉为主",warm:WARM,cool:COOL_UP,groups:[
-    {tag:"A",items:["row2","ohp"],sets:3,restIn:30,restOut:60},
-    {tag:"B",items:["slowpush","lateral"],sets:3,restIn:30,restOut:60},
-    {tag:"C",items:["hammer","skull"],sets:2,restIn:30,restOut:60},
-    {tag:"D",items:["ytw"],sets:2,rest:30}
+  upB:{title:"上肢 B",sub:"引体 + 肩背",warm:WARM,cool:COOL_UP,groups:[
+    {tag:"A",items:["pullup","ohp"],sets:3,restIn:45,restOut:75},
+    {tag:"B",items:["row2","slowpush"],sets:3,restIn:30,restOut:60},
+    {tag:"C",items:["lateral","skull"],sets:2,restIn:30,restOut:60},
+    {tag:"D",items:["hammer","ytw"],sets:2,restIn:30,restOut:60}
   ]},
   lowB:{title:"下肢 B",sub:"单腿和臀部",warm:WARM,cool:COOL_LOW,groups:[
     {tag:"A",items:["lunge"],sets:3,rest:60},
