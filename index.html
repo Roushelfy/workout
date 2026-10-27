@@ -1126,7 +1126,7 @@ function render(){
   const key=PLAN[selected], w=key?W[key]:null, done=weekDone();
   let h='<header><div class="eyebrow">'+(selected===todayKey?"今晚 · 23:30":"周"+DAY_CN[selected])+'</div>';
   h+='<h1>'+(w?esc(w.title):"休息日")+'</h1>';
-  h+='<p class="meta">'+(w?esc(w.sub)+" · 约 "+estimate(w)+" 分钟 · 瑜伽垫 + 15 磅哑铃 ×2":"肌肉是在休息时长的")+'</p></header>';
+  h+='<p class="meta">'+(w?esc(w.sub)+" · 约 "+estimate(w)+" 分钟 · 瑜伽垫 + 15 磅哑铃 ×2"+(w.groups.some(g=>g.items.indexOf("pullup")>=0)?" + 单杠":""):"肌肉是在休息时长的")+'</p></header>';
   h+='<nav class="days" aria-label="选择星期">';
   ORDER.forEach(d=>{
     const k=PLAN[d];
